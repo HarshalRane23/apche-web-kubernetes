@@ -1,0 +1,34 @@
+# [START cloudbuild]
+# This step builds the container image.
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/searce-playground/apache-sample:$COMMIT_SHA'
+  - '.'
+
+# push image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'push'
+  - 'gcr.io/searce-playground/apache-sample:$COMMIT_SHA'
+
+# make changes to tag
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Generate manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" resource/sample-deployment.yaml.tpl | \
+     sed 's/latest/$COMMIT_SHA/g' > resource/sample-deployment.yaml
+     
+# Deploy to the kubernetes cluster
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['apply', '-f', 'resource/']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=northamerica-northeast1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=harshal-test-cluster'
+
+

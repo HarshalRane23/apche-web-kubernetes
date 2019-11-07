@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "staging-k8s-ingress-ip"
+    networking.gke.io/managed-certificates: "staging-cert"
+spec:
+  rules:
+  - host: testdns.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-app-service
+          servicePort: 80
+

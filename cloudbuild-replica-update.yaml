@@ -1,0 +1,13 @@
+# [START cloudbuild]
+# This step builds the container image.
+steps:
+
+
+# Deploy to the kubernetes cluster
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['scale', '--current-replicas=2','--replicas=1','deployment/apache-deployment']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=northamerica-northeast1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=harshal-test-cluster'
+
+
